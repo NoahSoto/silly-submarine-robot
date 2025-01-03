@@ -1,27 +1,27 @@
+#include <Stepper.h>
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
-#define PIN 0
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
-  pinMode(PIN,OUTPUT);
-  Serial.begin(9600);
+const int steps_per_rev = 200; //Set to 200 for NIMA 17
+#define IN1 5
+#define IN2 4
+#define IN3 14
+#define IN4 12
+
+Stepper motor(steps_per_rev, IN1, IN2, IN3, IN4);
+
+
+void setup()
+{
+  motor.setSpeed(60);
+  Serial.begin(115200);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.println("Testing....\n");
-  delay(500);
-  digitalWrite(PIN,HIGH);
-  delay(500);
-  digitalWrite(PIN,LOW);
-  delay(100);
-  digitalWrite(PIN,HIGH);
-}
+void loop() 
+{
+  Serial.println("Rotating Clockwise...");
+  motor.step(steps_per_rev);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  Serial.println("Rotating Anti-clockwise...");
+  motor.step(-steps_per_rev);
+  delay(500);
 }

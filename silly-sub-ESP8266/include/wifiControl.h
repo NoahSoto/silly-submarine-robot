@@ -1,5 +1,5 @@
-#ifndef WIFI_STUFF_H
-#define WIFI_STUFF_H
+#ifndef WIFI_CONTROL_H
+#define WIFI_CONTROL_H
 
 #include <ESP8266WebServer.h> // or <WebServer.h> for ESP32
 #include <WiFiClient.h>
@@ -13,12 +13,13 @@
 extern ESP8266WebServer server; // Declare the server object
 extern Stepper stepper;
 extern const String postForms;
+extern int driveVal;
 
 void setupWifi(const char* ssid, const char* password);
 void setupServer(ESP8266WebServer& server);
 void handleNotFound();
 void handleRoot();
-void handlePlain();
+void handleThrust();
 void handleForm();
 
 #endif // STEPPER_CONTROL_H

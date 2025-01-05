@@ -1,8 +1,11 @@
 #include "wifiControl.h"
 #include "stepperControl.h"
+#include "brushlessControl.h"
 
 
 ESP8266WebServer server(80);  // Create a web server that listens on port 80
+extern int driveVal;
+
 
 void setupWifi(const char* ssid, const char* password) {
     WiFi.begin(ssid, password);
@@ -19,7 +22,7 @@ void setupWifi(const char* ssid, const char* password) {
 }
 void setupServer(ESP8266WebServer& server){
     server.on("/", HTTP_GET, handleRoot);  // Handle root URL
-    server.on("/postplain", HTTP_POST, handlePlain); // Handle POST to /postplain
+    server.on("/postthrust", HTTP_POST, handleThrust); // Handle POST to /postplain
     server.on("/postform", HTTP_POST, handleForm);  // Handle POST to /postform
     server.onNotFound(handleNotFound);   // Handle 404 errors
     server.begin();
@@ -37,7 +40,11 @@ const String postForms = "<html>\
   <body>\
     <h1>POST submarine syringe step amount /postform</h1><br>\
     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/postform\">\
-      <input type=\"text\" name=\"steps\" value=\"world\"><br>\
+      <input type=\"text\" name=\"steps\" value=\"STEPS(integer)\"><br>\
+      <input type=\"submit\" value=\"Submit\">\
+    </form>\
+     <form method=\"post\" enctype=\"application/x-www-form-urlencoded\" action=\"/postthrust\">\
+      <input type=\"text\" name=\"thrust\" value=\"SPEED(integer)\"><br>\
       <input type=\"submit\" value=\"Submit\">\
     </form>\
   </body>\
@@ -47,16 +54,17 @@ void handleRoot() {
   server.send(200, "text/html", postForms);
 }
 
-void handlePlain() {
+
+void handleThrust() {
   if (server.method() != HTTP_POST) {
     server.send(405, "text/plain", "Method Not Allowed");
   } else {
-    server.send(200, "text/plain", "STEPPING SYRINGES OUT TO:\n" + server.arg("plain"));
-    int steps = server.arg("plain").toInt();
-    Serial.print("Stepping ");
-    Serial.println(steps);
-    stepper.step(steps);
-
+    String message = "";
+    for (uint8_t i = 0; i < server.args(); i++) { message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
+    server.send(200, "text/plain", message);
+    int thrust = server.arg(0).toInt();
+    driveVal = thrust;
+    Serial.println("Drive val set");
   }
 }
 

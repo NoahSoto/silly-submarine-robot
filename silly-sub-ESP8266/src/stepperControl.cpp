@@ -1,13 +1,15 @@
 #include <Arduino.h>
 #include "stepperControl.h"
 
+
+
 // Constants
 #define STEPS_PER_REVOLUTION 200 // Steps per revolution for the motor
 #define STEP_PIN 5              // Step pin
 #define DIR_PIN 4               // Direction pin
 // Microstepping control pins
-#define MS1_PIN 2
-#define MS2_PIN 16
+#define STEP2_PIN 2
+#define DIR2_PIN 16
 // Variables
 int stepLimit = 1000;
 bool movingForward = true;

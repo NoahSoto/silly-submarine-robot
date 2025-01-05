@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "wificlient.h": "c",
+        "accelstepper.h": "c"
+    }
+}

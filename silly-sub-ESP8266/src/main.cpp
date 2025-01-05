@@ -1,27 +1,31 @@
-#include <Stepper.h>
+// Define stepper pins
+#include <AccelStepper.h>
 #include <Arduino.h>
+#include <Stepper.h>
 
-const int steps_per_rev = 200; //Set to 200 for NIMA 17
-#define IN1 5
-#define IN2 4
-#define IN3 14
-#define IN4 12
+#include "stepperControl.h"
+#include "wifiControl.h"
+// Define stepper pins
 
-Stepper motor(steps_per_rev, IN1, IN2, IN3, IN4);
+#define STEPS_PER_REVOLUTION 200 // Steps per revolution for the motor
+
+#define STEP_PIN 5      // Step pin
+#define DIR_PIN 4       // Direction pin
 
 
-void setup()
-{
-  motor.setSpeed(60);
+
+
+void setup(){
   Serial.begin(115200);
+  setupStepper();
+  
+  setupWifi("jo-jungle","submarine-dog-banana");
+
+  setupServer(server);
+  
 }
 
-void loop() 
-{
-  Serial.println("Rotating Clockwise...");
-  motor.step(steps_per_rev);
+void loop(){
 
-  Serial.println("Rotating Anti-clockwise...");
-  motor.step(-steps_per_rev);
-  delay(500);
+  server.handleClient();  // Add this line to process incoming requests
 }

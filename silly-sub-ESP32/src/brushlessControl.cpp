@@ -9,13 +9,12 @@ Servo escpStarboard;
 void setupBrushless(){
  
 
-     pinMode(BRUSHLESS_SIGNAL_PORT, OUTPUT);
 
-        escPort.attach(BRUSHLESS_SIGNAL_PORT,1000,2000); //min pwm  = 1 ms, max = 2 ms
+    escPort.attach(BRUSHLESS_SIGNAL_PORT,1000,2000); //min pwm  = 1 ms, max = 2 ms
     // Initialize escPort to stop position
     
     
-    
+    escPort.writeMicroseconds(1000); // 1000 µs pulse width (stopped)
      //Minimum throttle or neutral (for bidirectional)
     Serial.println("Pause for escPort initalization");
     delay(2000);                 // Allow escPort to initialize
@@ -39,7 +38,7 @@ bool drive(int throttle){
         escPort.write(0); //stop!
         //Serial.println("Hopefully stopped...");
     }
-    if(throttle > 1000 && throttle < 2000){
+    if(throttle > 0 && throttle < 180){
         escPort.write(throttle);
         return true;
     }else{
@@ -53,14 +52,14 @@ bool drivePort(int throttle){
 
  
     if(throttle == 0){
-        escPort.writeMicroseconds(1000); //stop!
+        escPort.write(1000); //stop!
         //Serial.println("Hopefully stopped...");
     }
     if(throttle > 1000 && throttle < 2000){
-        escPort.writeMicroseconds(throttle);
+        escPort.write(throttle);
         return true;
     }else{
-        escPort.writeMicroseconds(1000);
+        escPort.write(1000);
         return false;
     }
 

@@ -1,6 +1,7 @@
 // Define stepper pins
 #include <AccelStepper.h>
 #include <Arduino.h>
+#include <HardwareSerial.h>
 
 #include "stepperControl.h"
 #include "wifiControl.h"
@@ -12,8 +13,12 @@
 int driveVal = 0;
 int lastVal = 0;
 
+
+
+
 void setup(){
   Serial.begin(115200);
+  Serial2.begin(115200); //higher baud = higher transfer rate
   //Serial1.begin(9600);
   //setupStepper(); //not actually needed?
   setupBrushless();
@@ -99,6 +104,10 @@ void loop(){
   //Serial.println("Test");
 
   server.handleClient();  // Add this line to process incoming requests
+  
 
-  analogDrive(driveVal);
+  if
+
+  drivePort(driveVal);
+
 }

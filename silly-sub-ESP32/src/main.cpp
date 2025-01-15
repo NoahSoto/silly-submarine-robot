@@ -101,9 +101,13 @@ void processData(String* controllerInput){
 bool ledState = true;
 
 void readData(){
+
     String controllerInput[6] = {"","","","","",""};
     String data = Serial2.readStringUntil('\n');
 
+
+    digitalWrite(2,ledState);
+    ledState != ledState;
     Serial.printf("Recieved on Hardware Serial Line #2: %s\n",data.c_str());
     Serial.println("Processing data now....");
     dataParser(data,controllerInput);

@@ -3,59 +3,75 @@
 
 
 
-// Constants
-#define STEPS_PER_REVOLUTION 200 // Steps per revolution for the motor
-#define STEP_PIN 5              // Step pin
-#define DIR_PIN 4               // Direction pin
-// Microstepping control pins
-#define STEP2_PIN 2
-#define DIR2_PIN 16
-// Variables
-int stepLimit = 1000;
-bool movingForward = true;
+
 
 // Create a Stepper instance
-Stepper stepper(STEPS_PER_REVOLUTION, STEP_PIN, DIR_PIN);
+Stepper fwd_stepper(STEPS_PER_REVOLUTION, FWD_STEP_PIN, FWD_DIR_PIN); //forward
+Stepper aft_stepper(STEPS_PER_REVOLUTION, AFT_STEP_PIN, AFT_DIR_PIN); //aft
 
 void setupStepper() {
     // Set the speed of the stepper motor (in RPM)
-    stepper.setSpeed(120); // Set desired speed in RPM
+    fwd_stepper.setSpeed(120); // Set desired speed in RPM
 }
 
-void moveStepper(int steps) {
+void moveFwdStepper(int steps) {
 
     int stepCount = abs(steps);  // Get the absolute value of steps to use in the loop
     if(steps == 0){
         return;
     }else if (steps > 0) {
-        digitalWrite(DIR_PIN, HIGH);  // Set direction to HIGH for forward motion
+        digitalWrite(FWD_DIR_PIN, HIGH);  // Set direction to HIGH for forward motion
     }else{
-        digitalWrite(DIR_PIN, LOW);   // Set direction to LOW for reverse motion
+        digitalWrite(FWD_DIR_PIN, LOW);   // Set direction to LOW for reverse motion
     }
 
-
     unsigned long lastStepTime = 0;  // Variable to track time for each step
-    int stepDelay = 700;  // Microseconds delay between steps, can be adjusted
 
 
     // Iterate over the absolute value of steps
     for (int x = 0; x < stepCount; x++) {
-            digitalWrite(STEP_PIN, HIGH); 
-            delayMicroseconds(700);
-            digitalWrite(STEP_PIN, LOW); 
-            delayMicroseconds(700);
+            digitalWrite(FWD_STEP_PIN, HIGH); 
+            delayMicroseconds(stepDelay);
+            digitalWrite(FWD_STEP_PIN, LOW); 
+            delayMicroseconds(stepDelay);
             // Feed the watchdog periodically
             yield(); // This allows the ESP to perform background tasks and prevent a reset
         }
 }
 
 
+void moveAftStepper(int steps) {
+
+    int stepCount = abs(steps);  // Get the absolute value of steps to use in the loop
+    if(steps == 0){
+        return;
+    }else if (steps > 0) {
+        digitalWrite(AFT_DIR_PIN, HIGH);  // Set direction to HIGH for forward motion
+    }else{
+        digitalWrite(AFT_DIR_PIN, LOW);   // Set direction to LOW for reverse motion
+    }
+
+
+    unsigned long lastStepTime = 0;  // Variable to track time for each step
+
+
+    // Iterate over the absolute value of steps
+    for (int x = 0; x < stepCount; x++) {
+            digitalWrite(AFT_STEP_PIN, HIGH); 
+            delayMicroseconds(stepDelay);
+            digitalWrite(AFT_STEP_PIN, LOW); 
+            delayMicroseconds(stepDelay);
+            // Feed the watchdog periodically
+            yield(); // This allows the ESP to perform background tasks and prevent a reset
+        }
+}
+
 
 void libraryStep(int steps){
 while (steps > 0) {
     int stepsToMove = (steps > 1000) ? 500 : steps;
     Serial.println(stepsToMove);
-    stepper.step(stepsToMove);
+    fwd_stepper.step(stepsToMove);
     steps -= stepsToMove;
     delay(100);  // Optional: Add delay to allow the motor to run smoothly
 }

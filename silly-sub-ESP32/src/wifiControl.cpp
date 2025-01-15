@@ -10,7 +10,7 @@
 WebServer server(80);
 
 // Global variables
-int driveVal;
+extern int driveVal;
 
 // HTML Form
 const String postForms = "<html>\
@@ -75,25 +75,23 @@ void handleThrust() {
     server.send(200, "text/plain", message);
     int thrust = server.arg(0).toInt();
     driveVal = thrust;
-    Serial.println("Drive val set");
+    Serial.printf("Drive val set %d\n",thrust);
   }
 }
 
-
 void handleForm() {
-    if (server.method() != HTTP_POST) {
-        server.send(405, "text/plain", "Method Not Allowed");
-        return;
-    }
-    if (server.hasArg("steps")) {
-        long steps = server.arg("steps").toInt();
-        Serial.printf("Stepping: %ld\n", steps);
-        moveStepper(steps);
-        server.send(200, "text/plain", "Stepper moved");
-    } else {
-        server.send(400, "text/plain", "Missing steps value");
-    }
+  if (server.method() != HTTP_POST) {
+    server.send(405, "text/plain", "Method Not Allowed");
+  } else {
+    String message = "";
+    for (uint8_t i = 0; i < server.args(); i++) { message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
+    server.send(200, "text/plain", message);
+    long steps = server.arg(0).toInt();
+    Serial.printf("Stepping %d\n",steps);
+    moveAftStepper(steps);
+  }
 }
+
 
 void handleNotFound() {
     String message = "File Not Found\n\n";

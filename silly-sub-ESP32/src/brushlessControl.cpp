@@ -5,23 +5,30 @@ Servo escPort;
 Servo escpStarboard;
 
 
+
 void setupBrushless(){
-    escPort.attach(BRUSHLESS_SIGNAL_PORT); //min pwm  = 1 ms, max = 2 ms
+ 
+
+     pinMode(BRUSHLESS_SIGNAL_PORT, OUTPUT);
+
+        escPort.attach(BRUSHLESS_SIGNAL_PORT,1000,2000); //min pwm  = 1 ms, max = 2 ms
     // Initialize escPort to stop position
-    escPort.writeMicroseconds(1000); // Minimum throttle or neutral (for bidirectional)
+    
+    
+    
+     //Minimum throttle or neutral (for bidirectional)
     Serial.println("Pause for escPort initalization");
     delay(2000);                 // Allow escPort to initialize
     Serial.println("Resume");
 
-/*
-    escStarboard.attach(BRUSHLESS_SIGNAL_STARBOARD); //min pwm  = 1 ms, max = 2 ms
-    // Initialize escStarboard to stop position
-    escStarboard.writeMicroseconds(1000); // Minimum throttle or neutral (for bidirectional)
-    Serial.println("Pause for escStarboard initalization");
-    delay(2000);                 // Allow escPort to initialize
-    Serial.println("Resume");
-*/
 
+
+}
+
+void analogDrive(int speed){
+   //for (int speed = 26; speed <= 52; speed += 2) {  // 26 (~1000 µs) to 52 (~2000 µs)
+
+    analogWrite(BRUSHLESS_SIGNAL_PORT, speed);
 
 }
 
@@ -29,14 +36,14 @@ bool drive(int throttle){
 
  
     if(throttle == 0){
-        escPort.writeMicroseconds(1000); //stop!
+        escPort.write(0); //stop!
         //Serial.println("Hopefully stopped...");
     }
     if(throttle > 1000 && throttle < 2000){
-        escPort.writeMicroseconds(throttle);
+        escPort.write(throttle);
         return true;
     }else{
-        escPort.writeMicroseconds(1000);
+        escPort.write(1000);
         return false;
     }
 

@@ -100,13 +100,29 @@ void processData(String* controllerInput){
 
 bool ledState = true;
 
+void readData(){
+    String controllerInput[6] = {"","","","","",""};
+    String data = Serial2.readStringUntil('\n');
+
+    Serial.printf("Recieved on Hardware Serial Line #2: %s\n",data.c_str());
+    Serial.println("Processing data now....");
+    dataParser(data,controllerInput);
+    for (int i = 0; i < 6; i++) {
+        if (controllerInput[i].length() > 0) { // Skip empty entries
+            Serial.printf("Controller Input[%d]: %s\n", i, controllerInput[i].c_str());
+        }
+    }
+}
+
 void loop(){
   //Serial.println("Test");
 
   server.handleClient();  // Add this line to process incoming requests
   
 
-  if
+  if(Serial2.available() > 0){
+    readData();
+  }
 
   drivePort(driveVal);
 

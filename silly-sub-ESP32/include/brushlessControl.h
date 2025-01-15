@@ -9,7 +9,6 @@
 extern Servo escPort;
 extern Servo escStarboard;
 
-
 void setupBrushless();
 bool drive(int throttle);
 void dualMotorDriveSingleJoystick(int throttleX,int throttleY);

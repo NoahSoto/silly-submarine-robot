@@ -64,7 +64,7 @@ void handleThrust() {
     server.send(200, "text/plain", message);
     int thrust = server.arg(0).toInt();
     driveVal = thrust;
-    Serial.println("Drive val set");
+    Serial.printf("Drive val set %d\n",thrust);
   }
 }
 
@@ -76,8 +76,7 @@ void handleForm() {
     for (uint8_t i = 0; i < server.args(); i++) { message += " " + server.argName(i) + ": " + server.arg(i) + "\n"; }
     server.send(200, "text/plain", message);
     long steps = server.arg(0).toInt();
-    Serial.print("Stepping ");
-    Serial.println(steps);
+    Serial.printf("Stepping %d\n",steps);
     moveStepper(steps);
   }
 }

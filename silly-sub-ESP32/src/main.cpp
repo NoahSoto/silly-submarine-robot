@@ -1,7 +1,6 @@
 // Define stepper pins
 #include <AccelStepper.h>
 #include <Arduino.h>
-#include <Stepper.h>
 
 #include "stepperControl.h"
 #include "wifiControl.h"
@@ -9,14 +8,15 @@
 //#include "SoftwareSerial.h" 
 
 
-extern int driveVal = 0;
 
+//extern int driveVal = 0;
 int lastVal = 0;
+
 void setup(){
   Serial.begin(115200);
-  Serial1.begin(9600);
-  setupStepper();
-  setupBrushless();
+  //Serial1.begin(9600);
+  //setupStepper();
+  //setupBrushless();
   setupWifi("jo-jungle","submarine-dog-banana");
 
   setupServer(server);
@@ -28,7 +28,7 @@ void setup(){
 
 
 void dataParser(String data, String* controllerInput){
-    // Split the data on commas first
+    // Split the data on c ommas first
   //axis L (x -> turning), axis L (y -> forward/back), left bumper (sink), right bumper (rise), button 1 (foward stepper), button 2 (back stepper) 
     while (data.length() > 0) {
       int commaIndex = data.indexOf(','); // Find the next comma
@@ -102,35 +102,35 @@ void processData(String* controllerInput){
 bool ledState = true;
 
 void loop(){
+  //Serial.println("Test");
 
   server.handleClient();  // Add this line to process incoming requests
-  if(lastVal != driveVal){
-    lastVal = driveVal;
-  }
+  // if(lastVal != driveVal){
+  //   lastVal = driveVal;
+  // }
   //Serial.printf("Drive value: %d\n",driveVal);
 
 
-  if (Serial1.available() > 0) {
-    String data = Serial1.readString();
-    Serial.println("Received via TX/RX: " + data);
-    digitalWrite(2, ledState ? HIGH : LOW);
-    ledState = !ledState;
-  }
+//   if (Serial1.available() > 0) {
+//     String data = Serial1.readString();
+//     Serial.println("Received via TX/RX: " + data);
+//     digitalWrite(2, ledState ? HIGH : LOW);
+//     ledState = !ledState;
+//   }
 
-if (Serial.available()) {
-    // Read the entire input line
-  String data = Serial.readStringUntil('\n');
-  String controllerInput[6];
-  dataParser(data,controllerInput);  
-  Serial.println("BRUH");
-  digitalWrite(2, ledState ? HIGH : LOW);
-  ledState = !ledState;
-  for(int i=0;i<controllerInput->length();i++){
-     //axis L (x -> turning), axis L (y -> forward/back), left bumper (sink), right bumper (rise), button 1 (foward stepper), button 2 (back stepper) 
-      processData(controllerInput);
-  }
-}
-
+// if (Serial.available()) {
+//     // Read the entire input line
+//   String data = Serial.readStringUntil('\n');
+//   String controllerInput[6];
+//   dataParser(data,controllerInput);  
+//   Serial.println("BRUH");
+//   digitalWrite(2, ledState ? HIGH : LOW);
+//   ledState = !ledState;
+//   for(int i=0;i<controllerInput->length();i++){
+//      //axis L (x -> turning), axis L (y -> forward/back), left bumper (sink), right bumper (rise), button 1 (foward stepper), button 2 (back stepper) 
+//       processData(controllerInput);
+//   }
+// }
 
 
   drive(driveVal);

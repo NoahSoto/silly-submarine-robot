@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 Servo escPort;
-Servo escpStarboard;
+Servo escStarboard;
 
 
 
@@ -10,13 +10,16 @@ void setupBrushless(){
  
 
 
-    escPort.attach(BRUSHLESS_SIGNAL_PORT,1000,2000); //min pwm  = 1 ms, max = 2 ms
+    escPort.attach(BRUSHLESS_SIGNAL_PORT, minPWM, maxPWM); //min pwm  = 1 ms, max = 2 ms
+    escStarboard.attach(BRUSHLESS_SIGNAL_STARBOARD,minPWM,maxPWM);
+    
     // Initialize escPort to stop position
     
     
     escPort.writeMicroseconds(1000); // 1000 µs pulse width (stopped)
+    escStarboard.writeMicroseconds(1000);
      //Minimum throttle or neutral (for bidirectional)
-    Serial.println("Pause for escPort initalization");
+    Serial.println("Pause for escPort / escStarboard initalization");
     delay(2000);                 // Allow escPort to initialize
     Serial.println("Resume");
 
@@ -47,24 +50,6 @@ bool drive(int throttle){
     }
 
 }
-
-bool drivePort(int throttle){
-
- 
-    if(throttle == 0){
-        escPort.write(1000); //stop!
-        //Serial.println("Hopefully stopped...");
-    }
-    if(throttle > 1000 && throttle < 2000){
-        escPort.write(throttle);
-        return true;
-    }else{
-        escPort.write(1000);
-        return false;
-    }
-
-}
-
 bool driveStarboard(int throttle){
 
  
@@ -81,6 +66,23 @@ bool driveStarboard(int throttle){
     }
 
 }
+bool drivePort(int throttle){
+
+ 
+    if(throttle == 0){
+        escPort.write(1000); //stop!
+    }
+    if(throttle > 1000 && throttle < 2000){
+        escPort.write(throttle);
+        return true;
+    }else{
+        escPort.write(1000);
+        return false;
+    }
+
+}
+
+
 
 void dualMotorDriveSingleJoystick(int throttleX, int throttleY){
 
@@ -95,19 +97,33 @@ void dualMotorDriveSingleJoystick(int throttleX, int throttleY){
         // Both motors are stopped
         adjustedThrottleP = stop;
         adjustedThrottleS = stop;
+   }else if(abs(throttleX) < deadband && throttleY >450){
+        adjustedThrottleP = stop;
+        adjustedThrottleS = stop;
    }else{
 
-    int forward = map(throttleY,-500,500,minThrottle,maxThrottle);
-    int turn = map(throttleX,-500,500,minThrottle,maxThrottle);
+    int yAxis = map(throttleY,-500,500,minThrottle,maxThrottle);
+    int xAxis = map(throttleX,-500,500,minThrottle,maxThrottle);
+    
+    if(xAxis < 0){
+        adjustedThrottleP = stop;
+        adjustedThrottleS = xAxis;
+    }
+    if(xAxis > 0){
+        adjustedThrottleP = xAxis;
+        adjustedThrottleS = stop;
+    }
 
-    adjustedThrottleP = forward + turn;
-    adjustedThrottleS = forward - turn;
-
-    adjustedThrottleP = constrain(adjustedThrottleP,minThrottle,maxThrottle);
-    adjustedThrottleS = constrain(adjustedThrottleS,minThrottle,maxThrottle);
+    if(yAxis < 0){
+        adjustedThrottleP = stop;
+        adjustedThrottleS = stop;
+    }
+    if (yAxis > 0){
+        adjustedThrottleP = yAxis;
+        adjustedThrottleS = yAxis;
+    }
 
     drivePort(adjustedThrottleP);
     driveStarboard(adjustedThrottleS);
-
    }
 }

@@ -18,8 +18,10 @@ int lastVal = 0;
 
 void setup(){
   Serial.begin(115200);
-  Serial2.begin(115200); //higher baud = higher transfer rate
-  //Serial1.begin(9600);
+  
+    // Initialize Serial1 for GPIO 16 (RX) and GPIO 17 (TX)
+  Serial1.begin(9600, SERIAL_8N1, 16, 17);
+  Serial.println("ESP32 is ready to send and receive on Serial1.");
   //setupStepper(); //not actually needed?
   setupBrushless();
   setupWifi("jo-jungle","submarine-dog-banana");
@@ -28,72 +30,54 @@ void setup(){
 
   pinMode(2,OUTPUT);
 
-  
+  delay(3000);
 }
 
+void dataParser(String data, String* controllerInput) {  
+ 
+ int buttonsIndex = data.indexOf("buttons: ");
+  if (buttonsIndex != -1) {
+    int startIndex = buttonsIndex + 9; // Skip "buttons: "
+    int endIndex = data.indexOf(",", startIndex);
+    controllerInput[0] = data.substring(startIndex, endIndex); // Store button value
+    String button = controllerInput[0];
 
-void dataParser(String data, String* controllerInput){
-    // Split the data on c ommas first
-  //axis L (x -> turning), axis L (y -> forward/back), left bumper (sink), right bumper (rise), button 1 (foward stepper), button 2 (back stepper) 
-    while (data.length() > 0) {
-      int commaIndex = data.indexOf(','); // Find the next comma
-      String chunk;
+    
+    if (button.equals("0x0010")) {
+      sink();
+    } else if (button.equals("0x0020")) {
+      rise();
+    } else if (button.equals("0x0008")) {
+      moveFwdStepper(50);
+    } else if (button.equals("0x0001")) {
+      moveFwdStepper(-50);
+    }    
 
-      if (commaIndex == -1) { // No more commas
-        chunk = data;
-        data = "";
-      } else {
-        chunk = data.substring(0, commaIndex); // Extract chunk before comma
-        data = data.substring(commaIndex + 1); // Update remaining data
-      }
+  }
+  // Parse axis L values
+  int axisIndex = data.indexOf("axis L: ");
+  if (axisIndex != -1) {
+    int startIndex = axisIndex + 8; // Skip "axis L: "
+    int commaIndex = data.indexOf(",", startIndex);
+    if (commaIndex != -1) {
+      controllerInput[1] = data.substring(startIndex, commaIndex);          // X value
+      controllerInput[2] = data.substring(commaIndex + 1);           // Y value
+      int intX = controllerInput[1].toInt();
+      int intY = controllerInput[2].toInt() * -1;
 
-      // Split each chunk on the colon ':'
-      int colonIndex = chunk.indexOf(':');
-      if (colonIndex != -1) {
-        String field = chunk.substring(0, colonIndex); // Extract the field
-        String value = chunk.substring(colonIndex + 1); // Extract the value
-
-        field.trim(); // Remove leading/trailing spaces
-        value.trim();
-
-        Serial.print("Field: ");
-        Serial.print(field);
-
-        Serial.print(", Value: ");
-        Serial.println(value);
-        
-        if(field.equals("axis L")){
-          String x,y;
-          int commaIndex2 = value.indexOf(",");
-
-          x = value.substring(0,commaIndex2); // x axis of L joystick (string)
-          y = value.substring(commaIndex2 + 1); // y axxis of L joystick (string)
-
-          controllerInput[0] = "X-TURN:" + x;
-          controllerInput[1] = "Y-DRIVE:" + y;
-        }if (field.equals("buttons")) {
-          if (value.equals("0x0010")) {
-            controllerInput[2] = "LB-SINK:" + value;
-          } else if (value.equals("0x0020")) {
-            controllerInput[3] = "RB-RISE:" + value;
-          } else if (value.equals("0x0008")) {
-            controllerInput[4] = "F-STEPIN:" + value;
-          } else if (value.equals("0x0001")) {
-            controllerInput[5] += "F-STEPO:" + value + "; ";  // Append instead of overwrite
-          }
-        }
-  // Handle additional cases similarly
-        }
-      }
-   }
-
+      dualMotorDriveSingleJoystick(intX, intY);
+      Serial.printf("X: %d\n", intX);
+      Serial.printf("Y: %d\n", intY);
+    }
+  }
+}
 
 
 void processData(String* controllerInput){
   for(int i=0;i<controllerInput->length();i++){
      //axis L (x -> turning), axis L (y -> forward/back), left bumper (sink), right bumper (rise), button 1 (foward stepper), button 2 (back stepper) 
-    if(i=0){
-      drive(controllerInput[0].toInt());
+    if(i==0){
+      //drive(controllerInput[0].toInt());
     }
   }  
 }
@@ -103,19 +87,22 @@ bool ledState = true;
 void readData(){
 
     String controllerInput[6] = {"","","","","",""};
-    String data = Serial2.readStringUntil('\n');
+    String data = Serial1.readStringUntil('\n');
 
+    Serial.println(data.c_str());
 
     digitalWrite(2,ledState);
-    ledState != ledState;
-    Serial.printf("Recieved on Hardware Serial Line #2: %s\n",data.c_str());
-    Serial.println("Processing data now....");
+    ledState = !ledState;
+    Serial.printf("Recieved on Hardware Serial Line #2: %s\n",data);
+    //Serial.println("Processing data now....");
     dataParser(data,controllerInput);
-    for (int i = 0; i < 6; i++) {
-        if (controllerInput[i].length() > 0) { // Skip empty entries
-            Serial.printf("Controller Input[%d]: %s\n", i, controllerInput[i].c_str());
-        }
-    }
+    // for (int i = 0; i < 6; i++) {
+    //     if (controllerInput[i].length() > 0) { // Skip empty entries
+    //         Serial.printf("Controller Input[%d]: %s\n", i, controllerInput[i].c_str());
+    //         //processData(controllerInput);
+    //     }
+    // }
+
 }
 
 void loop(){
@@ -124,10 +111,8 @@ void loop(){
   server.handleClient();  // Add this line to process incoming requests
   
 
-  if(Serial2.available() > 0){
+  if(Serial1.available() > 0){
     readData();
   }
-
-  drivePort(driveVal);
 
 }

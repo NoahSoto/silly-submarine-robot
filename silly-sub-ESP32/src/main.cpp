@@ -24,11 +24,11 @@ void setup(){
   Serial.println("ESP32 is ready to send and receive on Serial1.");
   //setupStepper(); //not actually needed?
   setupBrushless();
-  setupWifi("jo-jungle","submarine-dog-banana");
+  //setupWifi("jo-jungle","submarine-dog-banana");
 
-  setupServer(server);
+  //setupServer(server);
 
-  pinMode(2,OUTPUT);
+  //pinMode(2,OUTPUT);
 
   delay(3000);
 }
@@ -91,8 +91,8 @@ void readData(){
 
     Serial.println(data.c_str());
 
-    digitalWrite(2,ledState);
-    ledState = !ledState;
+    //digitalWrite(2,ledState);
+    //ledState = !ledState;
     Serial.printf("Recieved on Hardware Serial Line #2: %s\n",data);
     //Serial.println("Processing data now....");
     dataParser(data,controllerInput);
@@ -108,7 +108,7 @@ void readData(){
 void loop(){
   //Serial.println("Test");
 
-  server.handleClient();  // Add this line to process incoming requests
+  //server.handleClient();  // Add this line to process incoming requests
   
 
   if(Serial1.available() > 0){

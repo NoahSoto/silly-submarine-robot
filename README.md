@@ -1,7 +1,9 @@
 # Just a #silly-submarine !!!
 
-Noah's desire to do cool stuff combined with his covert brainwashing to the nautical way of life given form! 
-
-Please checkout the ESP32 branch and the Medium article!
+To get a detailed recount of my design process to make this project come to fruition, please check out my Medium post!
 
 Medium: 
+
+Please checkout the ESP32 branch for PCB designs, and my most updated code!
+
+
